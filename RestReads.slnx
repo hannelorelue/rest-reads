@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="RestReads.Api/RestReads.Api.csproj" />
+  <Project Path="RestReads.Client/RestReads.Client.csproj" />
+  <Project Path="RestReads.Core/RestReads.Core.csproj" />
+  <Project Path="RestReads.Tests/RestReads.Tests.csproj" />
+</Solution>
