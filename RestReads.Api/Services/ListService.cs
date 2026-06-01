@@ -5,6 +5,7 @@ using RestReads.Core.Entities;
 using RestReads.Core.Enums;
 using RestReads.Core.Interfaces;
 
+
 namespace RestReads.Api.Services;
 
 public class ListService(AppDbContext db) : IListService
@@ -14,17 +15,31 @@ public class ListService(AppDbContext db) : IListService
         return await db.ReadingLists
             .AsNoTracking()
             .Where(l => l.UserId == userId)
-            .Select(l => ToDto(l))
+            .Select(l => new ReadingListDto
+            {
+                Id = l.Id,
+                Name = l.Name,
+                Type = l.Type,
+                IsCustom = l.IsCustom,
+                EntryCount = l.Entries.Count
+            })
             .ToListAsync();
     }
 
     public async Task<ReadingListDto?> GetListAsync(int userId, int listId)
     {
-        var list = await db.ReadingLists
+        return await db.ReadingLists
             .AsNoTracking()
-            .FirstOrDefaultAsync(l => l.Id == listId && l.UserId == userId);
-
-        return list is null ? null : ToDto(list);
+            .Where(l => l.Id == listId && l.UserId == userId)
+            .Select(l => new ReadingListDto
+            {
+                Id = l.Id,
+                Name = l.Name,
+                Type = l.Type,
+                IsCustom = l.IsCustom,
+                EntryCount = l.Entries.Count
+            })
+            .FirstOrDefaultAsync();
     }
 
     public async Task UpdateListAsync(int userId, int listId, CreateListRequest request)
@@ -48,7 +63,14 @@ public class ListService(AppDbContext db) : IListService
 
         db.ReadingLists.Add(list);
         await db.SaveChangesAsync();
-        return ToDto(list);
+        return new ReadingListDto
+        {
+            Id = list.Id,
+            Name = list.Name,
+            Type = list.Type,
+            IsCustom = list.IsCustom,
+            EntryCount = 0
+        };
     }
 
     public async Task DeleteCustomListAsync(int userId, int listId)
@@ -102,12 +124,4 @@ public class ListService(AppDbContext db) : IListService
         await db.SaveChangesAsync();
     }
 
-    private static ReadingListDto ToDto(ReadingList list) => new()
-    {
-        Id = list.Id,
-        Name = list.Name,
-        Type = list.Type,
-        IsCustom = list.IsCustom,
-        EntryCount = list.Entries.Count
-    };
 }

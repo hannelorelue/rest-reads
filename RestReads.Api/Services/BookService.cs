@@ -70,6 +70,28 @@ public class BookService(AppDbContext db) : IBookService
         return ToDto(book);
     }
 
+    public async Task<(BookDto book, bool alreadyExists)> ImportAsync(ImportBookRequest request)
+    {
+        var existing = await db.Books.FirstOrDefaultAsync(b => b.OpenLibraryKey == request.OpenLibraryKey);
+        if (existing is not null)
+            return (ToDto(existing), true);
+
+        var book = new Book
+        {
+            Title = request.Title,
+            Author = request.Author,
+            Isbn = request.Isbn,
+            OpenLibraryKey = request.OpenLibraryKey,
+            TotalPages = request.TotalPages,
+            CoverUrl = request.CoverUrl,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        db.Books.Add(book);
+        await db.SaveChangesAsync();
+        return (ToDto(book), false);
+    }
+
     private static BookDto ToDto(Book book) => new()
     {
         Id = book.Id,

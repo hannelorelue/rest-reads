@@ -10,26 +10,23 @@ public class UserService(AppDbContext db) : IUserService
 {
     public async Task<UserProfileDto?> GetProfileAsync(string username)
     {
-        var user = await db.Users
+        return await db.Users
             .AsNoTracking()
-            .Include(u => u.ReadingLists)
-            .FirstOrDefaultAsync(u => u.Username == username);
-
-        if (user is null) return null;
-
-        return new UserProfileDto
-        {
-            Id = user.Id,
-            Username = user.Username,
-            CreatedAt = user.CreatedAt,
-            ReadingLists = user.ReadingLists.Select(l => new ReadingListDto
+            .Where(u => u.Username == username)
+            .Select(u => new UserProfileDto
             {
-                Id = l.Id,
-                Name = l.Name,
-                Type = l.Type,
-                IsCustom = l.IsCustom,
-                EntryCount = l.Entries.Count
+                Id = u.Id,
+                Username = u.Username,
+                CreatedAt = u.CreatedAt,
+                ReadingLists = u.ReadingLists.Select(l => new ReadingListDto
+                {
+                    Id = l.Id,
+                    Name = l.Name,
+                    Type = l.Type,
+                    IsCustom = l.IsCustom,
+                    EntryCount = l.Entries.Count
+                })
             })
-        };
+            .FirstOrDefaultAsync();
     }
 }

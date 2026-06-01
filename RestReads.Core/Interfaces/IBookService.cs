@@ -9,4 +9,5 @@ public interface IBookService
     Task<BookDto?> GetByIdAsync(int id);
     Task<BookDto> CreateAsync(CreateBookRequest request);
     Task<BookDto?> UpdateAsync(int id, CreateBookRequest request);
+    Task<(BookDto book, bool alreadyExists)> ImportAsync(ImportBookRequest request);
 }

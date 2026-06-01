@@ -39,6 +39,13 @@ builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IListService, ListService>();
 builder.Services.AddScoped<IUserService, UserService>();
 
+// Open Library HTTP client
+builder.Services.AddHttpClient<IOpenLibraryService, OpenLibraryService>(client =>
+{
+    client.BaseAddress = new Uri("https://openlibrary.org/");
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("RestReads/1.0");
+});
+
 builder.Services.AddControllers();
 
 // Swagger with JWT support
